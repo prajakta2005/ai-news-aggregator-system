@@ -129,7 +129,3 @@ Use **Windows Task Scheduler** to run `python main.py` once a day:
 | `sources` | RSS feeds and blog origins |
 | `content_items` | Articles and videos with full scraped text |
 | `digests` | LLM-generated summaries |
-
-## License
-
-MIT
