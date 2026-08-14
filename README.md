@@ -1,131 +1,338 @@
 # AI News Aggregator
 
-An AI-powered news aggregation system that collects and curates the latest developments in artificial intelligence — built entirely with **free, open-source tools**.
+An open-source AI news intelligence system that collects AI-related news from multiple public sources, processes the information using an LLM, and delivers a concise daily AI digest to subscribed users via email.
 
-## Stack (100% free)
+The goal of this project is not simply to aggregate news. The goal is to build an automated system that answers:
 
-| Component | Tool | Cost |
-|-----------|------|------|
-| Database | PostgreSQL in Docker | Free |
-| LLM | Ollama (Llama 3.2, local) | Free |
-| YouTube feeds | RSS (public feeds) | Free |
-| Blog scraping | httpx + trafilatura (open source) | Free |
-| Email | [Resend](https://resend.com) free tier | 3,000 emails/month |
+> **"What actually happened in AI today, and why does it matter?"**
 
-> **Note on OpenAI:** The OpenAI API is pay-per-use — there is no free production tier. This project uses **Ollama** instead so viewers can follow along without paying for anything.
+## Project Vision
 
-## What it does
+The system will collect news from multiple sources such as RSS feeds and public AI/technology publications.
 
-1. **Collects** videos from YouTube channels via RSS feeds
-2. **Scrapes** full blog post content from AI organizations (OpenAI, Anthropic, etc.)
-3. **Stores** everything in PostgreSQL (Docker container)
-4. **Summarizes** with a local LLM using prompts in the `agent/` folder
-5. **Emails** a curated daily digest via Resend
+The collected information will then be processed, cleaned, deduplicated, and analyzed using an LLM.
 
-## Project structure
+Every day, at a configured time, the system will generate a concise AI news digest and send it to all subscribed users.
 
+The intended user experience is:
+
+```text
+User visits website
+        ↓
+Enters email
+        ↓
+Subscribes
+        ↓
+System collects AI news every day
+        ↓
+AI analyzes the day's developments
+        ↓
+Daily digest is generated
+        ↓
+User receives the digest by email
 ```
+
+## System Overview
+
+```text
+                    ┌─────────────────────┐
+                    │       SOURCES       │
+                    │                     │
+                    │ RSS Feeds           │
+                    │ AI Blogs            │
+                    │ Tech Publications   │
+                    │ Public Sources      │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   NEWS INGESTION    │
+                    │                     │
+                    │ Fetch               │
+                    │ Parse               │
+                    │ Normalize           │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     PROCESSING      │
+                    │                     │
+                    │ Validate            │
+                    │ Filter              │
+                    │ Deduplicate         │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │    AI PROCESSING    │
+                    │                     │
+                    │ Summarize           │
+                    │ Extract key points  │
+                    │ Identify importance │
+                    │ Generate synthesis  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │    DAILY DIGEST     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │    EMAIL DELIVERY   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                           Subscriber
+```
+
+## Current Development Phase
+
+The project is being developed incrementally.
+
+### Phase 01 — News Ingestion & Storage
+
+The first phase focuses on building a reliable news collection pipeline.
+
+```text
+RSS Sources
+    ↓
+Fetch
+    ↓
+Parse
+    ↓
+Normalize
+    ↓
+Validate
+    ↓
+Deduplicate
+    ↓
+PostgreSQL
+```
+
+Phase 01 does **not** focus on LLM processing or email delivery yet.
+
+The purpose is to establish a reliable foundation for the later AI pipeline.
+
+### Phase 02 — AI Intelligence
+
+The second phase will introduce the LLM layer.
+
+```text
+Stored Articles
+      ↓
+Article Selection
+      ↓
+LLM Processing
+      ↓
+Summarization
+      ↓
+Key Points
+      ↓
+Importance / Relevance
+      ↓
+Daily Digest
+```
+
+The primary LLM will initially use the Gemini API Free Tier.
+
+The architecture will keep the LLM provider replaceable so that other free or local models can be used when necessary.
+
+### Phase 03 — Automation & Delivery
+
+The final phase will connect the complete system.
+
+```text
+Scheduler
+    ↓
+Collect News
+    ↓
+Process News
+    ↓
+Generate AI Digest
+    ↓
+Find Subscribers
+    ↓
+Send Email
+```
+
+A lightweight web interface will allow users to subscribe with their email address.
+
+## Technology Stack
+
+| Component        | Technology            |
+| ---------------- | --------------------- |
+| Language         | Python                |
+| Backend          | FastAPI               |
+| Database         | PostgreSQL            |
+| ORM              | SQLAlchemy            |
+| Validation       | Pydantic              |
+| News Collection  | RSS / Public Sources  |
+| RSS Parser       | feedparser            |
+| HTTP Client      | httpx                 |
+| LLM              | Gemini API Free Tier  |
+| LLM Fallback     | Ollama / Local Models |
+| Frontend         | Next.js + TypeScript  |
+| Styling          | Tailwind CSS          |
+| Scheduling       | APScheduler           |
+| Testing          | Pytest                |
+| Containerization | Docker                |
+| CI/CD            | GitHub Actions        |
+| Version Control  | Git + GitHub          |
+
+## Cost Constraint
+
+This project is being developed with a **₹0 development budget** as a core constraint.
+
+We will prioritize:
+
+* Open-source software
+* Public RSS feeds
+* Free APIs and free tiers
+* Local/open-weight models where appropriate
+* Free development and deployment options
+* Self-hosted components when practical
+
+The system should not depend on a paid API to function during development.
+
+The LLM layer will initially use the Gemini API Free Tier, with Ollama/local models available as a fallback during development.
+
+Free-tier limits and service availability may change over time, so provider-specific dependencies will be isolated behind application interfaces wherever practical.
+
+## Design Principles
+
+### 1. Understand Before Implementing
+
+Every major component will be understood before it is implemented.
+
+### 2. Simple Before Complex
+
+We will not introduce infrastructure or frameworks unless they solve an actual problem.
+
+### 3. AI Is a Component, Not the Entire Application
+
+The project is an automated data and intelligence pipeline in which an LLM is one component.
+
+### 4. Provider Independence
+
+The application should not be tightly coupled to a single LLM provider.
+
+### 5. Reliability Before Intelligence
+
+A reliable news ingestion pipeline must exist before sophisticated AI processing is introduced.
+
+### 6. Test as We Build
+
+Testing will be introduced alongside features rather than at the end of development.
+
+### 7. Learn Through Implementation
+
+Every feature should answer two questions:
+
+* Why does this component exist?
+* What engineering concept does implementing it teach?
+
+## Project Structure
+
+The project will be developed incrementally.
+
+The initial structure is intentionally small:
+
+```text
 ai-news-aggregator/
-├── agent/
-│   ├── prompts/              # System & user prompts (edit these!)
-│   │   ├── digest_system.txt
-│   │   └── digest_user.txt
-│   └── digest_agent.py       # LLM agent that loads prompts & calls Ollama
+│
 ├── app/
-│   ├── collectors/           # RSS feeds, blog scrapers, full-page extraction
-│   ├── models/               # SQLAlchemy data models
-│   ├── notifications/        # Resend email delivery
-│   └── pipeline/             # Daily orchestration
-├── docker-compose.yml        # PostgreSQL + Ollama containers
-├── main.py
-└── pyproject.toml
+│   ├── __init__.py
+│   └── main.py
+│
+├── tests/
+│
+├── scripts/
+│
+├── .env.example
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
-## Prerequisites
+As the project develops, application responsibilities will be separated into areas such as:
 
-- Python 3.12+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- Free [Resend](https://resend.com) account (for email)
-
-## Setup
-
-### 1. Install Python dependencies
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -e ".[dev]"
+```text
+app/
+├── api/
+├── core/
+├── db/
+├── ingestion/
+├── processing/
+├── ai/
+├── digest/
+└── email/
 ```
 
-### 2. Start Docker services
+These modules will be introduced when their functionality is implemented.
 
-```bash
-docker compose up -d
+## Development Workflow
+
+Development will follow:
+
+```text
+Understand
+    ↓
+Design
+    ↓
+Implement
+    ↓
+Test
+    ↓
+Document
+    ↓
+Commit
 ```
 
-This starts:
-- **PostgreSQL** on port `5432`
-- **Ollama** on port `11434`
+Git branches will be used for major phases and features.
 
-### 3. Pull the LLM model (one-time)
+Example:
 
-```bash
-docker compose exec ollama ollama pull llama3.2
+```text
+main
+ │
+ └── phase-01-foundation
+       │
+       ├── feature/rss-ingestion
+       ├── feature/database
+       └── feature/deduplication
 ```
 
-This downloads Llama 3.2 (~2 GB). It runs locally — no API key needed.
+## Future Features
 
-### 4. Configure environment
+The initial version will focus on the core daily digest pipeline.
 
-```bash
-copy .env.example .env
-```
+Potential future improvements include:
 
-Fill in:
+* Personalized news categories
+* Topic preferences
+* AI news search
+* Digest archive
+* "Ask about today's AI news"
+* Related-story clustering
+* Source credibility signals
+* Article relevance scoring
+* User preferences
+* Unsubscribe management
+* Admin dashboard
+* Observability and monitoring
+* Automated evaluation of AI-generated summaries
 
-```env
-RESEND_API_KEY=re_xxxxxxxx        # from resend.com/api-keys
-RESEND_FROM_EMAIL=onboarding@resend.dev   # works for testing
-DIGEST_RECIPIENT_EMAIL=you@gmail.com      # must match your Resend account email
-```
+These features will only be introduced after the core pipeline is reliable.
 
-**Resend setup (2 minutes):**
-1. Sign up at [resend.com](https://resend.com) (free)
-2. Go to **API Keys** → create a key → paste into `.env`
-3. Use `onboarding@resend.dev` as the sender (no domain setup required for testing)
-4. Set `DIGEST_RECIPIENT_EMAIL` to the email you signed up with
+## Project Status
 
-### 5. Add news sources
+**Current phase:** Phase 01 — News Ingestion & Storage
 
-Edit `app/collectors/sources.py` — add YouTube RSS feeds and blog URLs.
+**Status:** Under active development
 
-### 6. Run the pipeline
+The project is being rebuilt from the ground up as a learning-focused implementation.
 
-```bash
-python main.py
-```
+## License
 
-## Where prompts live
-
-All agent prompts are plain text files in `agent/prompts/`:
-
-- **`digest_system.txt`** — tells the LLM how to behave (curator persona, output format)
-- **`digest_user.txt`** — template for the user message; `{content_block}` is filled with scraped articles
-
-Edit these files to change how the digest is generated — no code changes needed.
-
-## Daily scheduling (free, local)
-
-Use **Windows Task Scheduler** to run `python main.py` once a day:
-
-1. Open Task Scheduler → Create Basic Task
-2. Trigger: Daily at your preferred time
-3. Action: Start a program → `C:\path\to\.venv\Scripts\python.exe C:\path\to\main.py`
-
-## Data model
-
-| Table | Purpose |
-|-------|---------|
-| `sources` | RSS feeds and blog origins |
-| `content_items` | Articles and videos with full scraped text |
-| `digests` | LLM-generated summaries |
+This project is open source. License details will be finalized as the project develops.
